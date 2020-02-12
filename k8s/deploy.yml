@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  k8schallenge
+  labels:
+    name:  k8schallenge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: k8schallenge
+  template:
+    metadata:
+      labels:
+        name: k8schallenge
+    spec:
+      containers:
+      - image: teochenglim/kubernetes-challenge:latest
+        name: k8schallenge
+        env:
+        - name:  NAME
+          valueFrom:
+            configMapKeyRef:
+              name: k8schallenge-config
+              key: name
+        ports:
+        - containerPort:  4000
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 4000
+          initialDelaySeconds: 1
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 4000
+          initialDelaySeconds: 1
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
