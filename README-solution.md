@@ -6,6 +6,8 @@ I used minikube in previous company but than now use Docker for Desktop on MacOS
 
 https://github.com/vagmi/kubernetes-challenge looks okay to me but i still need to modify a little bit to my liking.
 
+Since I am linking github and docker hub account and allow autobuild trigger, the image will be build each time i do git commit.
+
 1. Install docker and turn on Kubernetes
 
 https://docs.docker.com/docker-for-mac/
