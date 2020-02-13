@@ -1,0 +1,60 @@
+# https://blog.jessfraz.com/post/building-container-images-securely-on-kubernetes/
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: img
+  name: img
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/img: unconfined
+spec:
+  securityContext:
+    runAsUser: 1000
+  initContainers:
+    # This container clones the desired git repo to the EmptyDir volume.
+    - name: git-clone
+      image: r.j3ss.co/jq
+      args:
+        - git
+        - clone
+        - --single-branch
+        - --
+        - https://github.com/teochenglim/kubernetes-challenge
+        - /repo # Put it in the volume
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+      volumeMounts:
+        - name: git-repo
+          mountPath: /repo
+  containers:
+  - image: r.j3ss.co/img
+    imagePullPolicy: Always
+    name: img
+    resources: {}
+    workingDir: /repo
+    command: ["/bin/ash","-c"]
+    args: ["img build -t registry-docker-registry.default.svc.cluster.local:5000/kubernetes-challenge . && img push --insecure-registry registry-docker-registry.default.svc.cluster.local:5000/kubernetes-challenge"]
+    # command:
+    # - img
+    # - build
+    # - -t
+    # - registry-docker-registry.default.svc.cluster.local:5000/kubernetes-challenge
+    # - .
+    # - "&&"
+    # - img
+    # - push
+    # - registry-docker-registry.default.svc.cluster.local:5000/kubernetes-challenge
+    # securityContext:
+    #   rawProc: true
+    volumeMounts:
+    - name: cache-volume
+      mountPath: /tmp
+    - name: git-repo
+      mountPath: /repo
+  volumes:
+  - name: cache-volume
+    emptyDir: {}
+  - name: git-repo
+    emptyDir: {}
+  restartPolicy: Never

@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: k8schallenge
+  labels:
+    name: k8schallenge
+spec:
+  selector:
+    name: k8schallenge
+  ports:
+  - name: web
+    port: 80
+    targetPort: 4000
+  type: NodePort

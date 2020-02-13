@@ -83,7 +83,49 @@ Hello Cheng Lim!
 7. To clean up
 
 ```shell
-helm del --purge nginx
+helm del nginx
 kubectl delete -f k8s/
+
+```
+
+8. Local registry (without using k8s build)
+
+```shell
+helm del registry
+helm install registry stable/docker-registry \
+    --set service.type=NodePort \
+    --set service.nodePort=30000
+docker build -t teochenglim/kubernetes-challenge -f Dockerfile .
+docker tag teochenglim/kubernetes-challenge registry-docker-registry.default.svc.cluster.local:30000/kubernetes-challenge
+docker push registry-docker-registry.default.svc.cluster.local:30000/kubernetes-challenge
+kubectl apply -f k8s-local
+
+```
+
+8. Local registry (with k8s build)
+
+```shell
+helm del registry
+helm install registry stable/docker-registry \
+    --set service.type=NodePort \
+    --set service.nodePort=30000
+
+### Trigger build
+kubectl apply -f k8s-build/ # Please wait git pull and img build with pog/img in completed state
+
+## Verify successfully pushed
+kubectl logs -f pod/img
+curl -X GET http://registry-docker-registry.default.svc.cluster.local:30000/v2/_catalog
+
+### Deploy apps
+kubectl apply -f k8s-local/
+
+### Verify app running corretly
+curl localhost:$(kubectl get svc -l name=k8schallenge -o json | jq -r '.items[0].spec.ports[0].nodePort')
+
+## To clean up
+kubectl delete -f k8s-build/
+kubectl delete -f k8s-local/
+helm del registry
 
 ```
