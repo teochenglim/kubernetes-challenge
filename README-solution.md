@@ -35,7 +35,7 @@ cd teochenglim
 
 ```shell
 helm init
-helm del --purge nginx
+helm del nginx
 helm install nginx stable/nginx-ingress \
     --set controller.service.type="NodePort" \
     --set controller.service.nodePorts.http=30080 \
