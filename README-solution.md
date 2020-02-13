@@ -123,6 +123,9 @@ kubectl apply -f k8s-local/
 ### Verify app running corretly
 curl localhost:$(kubectl get svc -l name=k8schallenge -o json | jq -r '.items[0].spec.ports[0].nodePort')
 
+$ curl localhost:30080/ # curl using ingress
+Hello Cheng Lim!
+
 ## To clean up
 kubectl delete -f k8s-build/
 kubectl delete -f k8s-local/
